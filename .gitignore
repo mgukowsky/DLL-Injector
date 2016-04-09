@@ -1,0 +1,9 @@
+.vs/
+Debug/
+Release/
+CrocMod/Debug/
+CrocMod/Release/
+CrocInject/Debug/
+CrocInject/Release/
+*.sdf
+*.opensdf
