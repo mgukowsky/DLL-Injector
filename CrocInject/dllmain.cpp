@@ -10,6 +10,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+		//This case is executed once the process loads the DLL
 		MessageBox(NULL, "DLL loaded by Dllmain!", "Success!", MB_OK);
 		CrocMod::my_func();
 	case DLL_THREAD_ATTACH:

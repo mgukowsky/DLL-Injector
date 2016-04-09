@@ -70,12 +70,17 @@ void BeginRedirect(LPVOID newFunction) {
 /*
 
 	In general, our injected function does the following:
+
 		-	Calls the original function by rewriting the original machine code at our hooked function. By rewriting the machine code,
 				we can invoke the function within our hooked function and in turn call the original version of the function. After
 				saving the return value from the call, we put our injectable machine code back in. It's complicated... check out the 
 				hooked version of DefWindowProcA below.
+
 		- Either before or after the call to the original function, we are free to do anything we want, including calling any function
 				addressable by the program.
+
+		- Note that we call the original function through the pointer so we do not have to link the DLL against any additional libraries.
+
 		-	We return the value from the call to the original function or, if we did not call the original function, we make sure to 
 				return a value that the program expects, otherwise we may get a crash. Note also that not calling the original function 
 				can cause the program to crash for various reasons, as would be the case if the function modified some global state variable
@@ -84,8 +89,6 @@ void BeginRedirect(LPVOID newFunction) {
 */
 
 int  WINAPI MyMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uiType) {
-	//MessageBox(NULL, "HOOKING SUCCESS", "YAY!", MB_OK)
-
 	VirtualProtect((LPVOID)pOrigFuncAddr, machineCodeSize, myProtect, NULL);
 	memcpy(pOrigFuncAddr, oldBytes, machineCodeSize);
 	int retValue = MessageBoxW(NULL, L"HOOKING SUCCESS!!!", L"Success:", MB_OK | MB_ICONQUESTION);
@@ -95,7 +98,6 @@ int  WINAPI MyMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uiT
 }
 
 BOOL WINAPI myDestroyWindow(HWND hwnd) {
-	MessageBox(NULL, "HOOKING SUCCESS", "YAY!", MB_OK);
 	VirtualProtect((LPVOID)pOrigFuncAddr, machineCodeSize, myProtect, NULL);
 	memcpy(pOrigFuncAddr, oldBytes, machineCodeSize);
 	BOOL retValue = DestroyWindow(hwnd);
@@ -132,7 +134,6 @@ LRESULT WINAPI myDefWindowProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 }
 
 void WINAPI myGrGlideInit(void) {
-	MessageBox(NULL, "HERE", "HERE", MB_OK | MB_SYSTEMMODAL);
 	VirtualProtect((LPVOID)pOrigFuncAddr, machineCodeSize, myProtect, NULL);
 	memcpy(pOrigFuncAddr, oldBytes, machineCodeSize);
 	pGrGlideInit origFunc = (pGrGlideInit)pOrigFuncAddr;
@@ -144,8 +145,6 @@ void WINAPI myGrGlideInit(void) {
 
 void WINAPI myGrBufferSwap(int paramA) {
 	pGrBufferSwap pOrigFunc = (pGrBufferSwap)pOrigFuncAddr;
-
-	MessageBox(NULL, "HERE", "HERE", MB_OK | MB_SYSTEMMODAL);
 	VirtualProtect((LPVOID)pOrigFuncAddr, machineCodeSize, myProtect, NULL);
 	memcpy(pOrigFuncAddr, oldBytes, machineCodeSize);
 	pOrigFunc(paramA);
@@ -167,7 +166,7 @@ void CrocMod::my_func() {
 	//Stop if the function could not be found
 	if (pOrigFuncAddr != NULL) {
 		char buff[256];
-		sprintf_s(buff, "Hook set successfully at 0x%X", pOrigFuncAddr);
+		sprintf_s(buff, "Hook set successfully at 0x%X", (unsigned int)pOrigFuncAddr);
 		MessageBox(NULL, buff, "Success!", MB_OK | MB_ICONINFORMATION);
 		BeginRedirect(myDefWindowProcA);
 	} else {

@@ -1,5 +1,6 @@
 #pragma once
 
+//Defines how the linker finds these functions
 #ifdef CROCINJECT_EXPORTS
 #define DECLSPEC		__declspec(dllexport)
 #else
@@ -7,8 +8,7 @@
 #endif
 
 namespace CrocMod {
-DECLSPEC int init();
-DECLSPEC void my_func();
-DECLSPEC void my_func_close();
-
+	DECLSPEC int init();
+	DECLSPEC void my_func();
+	DECLSPEC void my_func_close();
 }

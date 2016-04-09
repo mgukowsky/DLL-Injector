@@ -1,5 +1,7 @@
 #include "Injector.h"
 
+
+//Change these strings to the ABSOLUTE address where CrocInject.dll can be found (after it is built)
 #ifdef DBGBUILD
 #define CROC_INJECT_DLL_PATH		"C:\\Workspace\\CrocMod\\Debug\\CrocInject.dll"
 #else 
@@ -38,7 +40,7 @@ namespace {
 
 		NtResumeProcess pfnNtResumeProcess = (NtResumeProcess)GetProcAddress( GetModuleHandle("ntdll"), "NtResumeProcess");
 
-		if (pfnNtResumeProcess != NULL) { //In case the API is no longer supported
+		if (pfnNtResumeProcess != NULL) {
 			pfnNtResumeProcess(processHandle);
 		}
 		CloseHandle(processHandle);
@@ -87,10 +89,13 @@ bool Injector::inject(HANDLE hCrocProc, DWORD pID) {
 
 	if (hThread == NULL) {
 		alert_err("Failed to create remote thread in victim process");
+		return false;
 	}
 
 	WaitForSingleObject(hThread, INFINITE);
 	CloseHandle(hCrocProc);
 
 	resume(pID);
+
+	return true;
 }
