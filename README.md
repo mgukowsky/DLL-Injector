@@ -1,4 +1,4 @@
-#CrocMod/CrocInject
+#DLL Injector
 A simple, extensible Windows DLL injector for the classic game "Croc: Legend of the Gobbos"
 
 ##About
